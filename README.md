@@ -315,7 +315,7 @@ Memcached 无验证机制，通过回环监听来限制访问，配置文件位�
 OPTIONS="-l 127.0.0.1"
 ```
 
-# mongodb
+# mongodb（```未完善```）
 
 # iptables
 
@@ -324,8 +324,9 @@ OPTIONS="-l 127.0.0.1"
 iptables -A INPUT -p tcp --dport 21 -m recent --name ftp --set
 iptables -A INPUT -p tcp --dport 21 -m recent --update --name ftp --seconds 60 --hitcount 10 -j DROP
 ```
-规则一：指定 recent 模块，访问 21 端口的 IP 存放在 ftp 仓库中，这是 --set 命令的作用
-规则二：从 ftp 仓库取出 IP，如果 60 秒内登陆次数达到 9 次，则抛弃后续链接，否则计数器累加
+
+- 规则一：指定 recent 模块，将访问 21 端口的 IP 存放在 ftp 仓库中，这是 --set 命令的作用
+- 规则二：从 ftp 仓库取出 IP，如果 60 秒内登陆次数达到 9 次，则抛弃后续连接，否则计数器累加
 
 ### DNAT 和 SNAT（```未完善```）
 首先开启路由转发：
@@ -336,4 +337,14 @@ echo 1 > /proc/sys/net/ipv4/ip_forward
 ```
 iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination 192.168.56.1:80
 iptables -t nat -A POSTROUTING -s 192.168.56.0/24 -j SNAT --to-source 192.168.56.3
+```
+
+### 禁止 ICMP
+使用系统网络配置：
+```
+echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_all
+```
+或者使用 iptables：
+```
+iptables -A INPUT -p icmp --icmp-type 8 -j DROP
 ```
